@@ -1,30 +1,14 @@
-const mysql = require('mysql2');
+const Sequelize = require('sequelize');
 
-const pool = mysql.createPool({
-    connectionLimit: 5,
-    host: "localhost",
-    user: "root",
-    password: "1987",
-    database: "usersdb"
-}).promise();
-
-pool.getConnection((err, connection) => {
-    if (err) {
-        if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-            console.error('Database connection was closed.')
-        }
-        if (err.code === 'ER_CON_COUNT_ERROR') {
-            console.error('Database has too many connections.')
-        }
-        if (err.code === 'ECONNREFUSED') {
-            console.error('Database connection was refused.')
-        }
+const sequelize = new Sequelize('usersdb', 'root', '1987', {
+    dialect: 'mysql',
+    host: 'localhost',
+    define: {
+        timestamps: false
     }
-
-    if (connection) connection.release();
 });
 
-module.exports = pool;
+module.exports = sequelize;
 
 
 

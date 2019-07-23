@@ -1,10 +1,10 @@
-const pool = require('../db');
+const User = require('../models/User');
 
 const userController = {
     list: async (req, res) => {
         try {
-            const [rows] = await pool.query("SELECT * FROM users");
-            res.send(rows);
+            const users = await User.findAll({raw: true});
+            res.send(users);
         } catch (error) {
             console.log(error);
         }
@@ -13,8 +13,8 @@ const userController = {
         const id = req.params.id;
 
         try {
-            const [rows] = await pool.query("SELECT * FROM users WHERE id=?", [id]);
-            res.send(rows[0]);
+            const user = await User.findOne({where: {id: id}});
+            res.send(user);
         } catch (error) {
             console.log(error);
         }
@@ -26,9 +26,11 @@ const userController = {
         const age = req.body.age;
 
         try {
-            const [data] = await pool.query("INSERT INTO users (name, age) VALUES (?,?)", [name, age]);
-            const [user] = await pool.query("SELECT * FROM users WHERE id=?", [data.insertId]);
-            res.send(user[0]);
+            const user = await User.create({
+                name,
+                age
+            });
+            res.send(user);
         } catch (error) {
             console.log(error);
         }
@@ -37,7 +39,11 @@ const userController = {
         const id = req.params.id;
 
         try {
-            await pool.query("DELETE FROM users WHERE id=?", [id]);
+            const user = await User.destroy({
+                where: {
+                    id
+                }
+            });
             res.send({id: +id});
         } catch (error) {
             console.log(error);
@@ -51,9 +57,12 @@ const userController = {
         const age = req.body.age;
 
         try {
-            await pool.query("UPDATE users SET name=?, age=? WHERE id=?", [name, age, id]);
-            const [user] = await pool.query("SELECT * FROM users WHERE id=?", [id]);
-            res.send(user[0]);
+            const user = await User.update({name, age}, {
+                where: {
+                    id
+                }
+            });
+            res.send(user);
         } catch (error) {
             console.log(error);
         }
